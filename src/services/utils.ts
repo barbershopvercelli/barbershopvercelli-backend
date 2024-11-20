@@ -1,4 +1,4 @@
-import * as twilio from 'twilio';
+// import * as twilio from 'twilio';
 import * as nodemailer from 'nodemailer';
 import * as bcrypt from 'bcryptjs';
 
@@ -12,7 +12,7 @@ export const comparePassword = async (password: string, hashedPassword: string) 
   return match
 }
 
-const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+// const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -25,13 +25,13 @@ const transporter = nodemailer.createTransport({
 export const generateOtp = (): number => Math.floor(100000 + Math.random() * 900000);
 
 // Send OTP via SMS
-export const sendSMSOtp = async (phone: string, otp: string | number) => {
-  await twilioClient.messages.create({
-    body: `Your OTP is: ${otp}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phone,
-  });
-};
+// export const sendSMSOtp = async (phone: string, otp: string | number) => {
+//   await twilioClient.messages.create({
+//     body: `Your OTP is: ${otp}`,
+//     from: process.env.TWILIO_PHONE_NUMBER,
+//     to: phone,
+//   });
+// };
 
 // Send OTP via Email
 export const sendEmailOtp = async (email: string, otp: string | number) => {

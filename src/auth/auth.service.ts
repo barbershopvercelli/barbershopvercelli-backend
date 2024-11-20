@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import * as jwt from 'jsonwebtoken';
 import { PrismaService } from '../prisma.service';
 import {
-  sendSMSOtp,
+  // sendSMSOtp,
   generateOtp,
   hashPassword,
   sendEmailOtp,
