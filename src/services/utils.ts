@@ -14,7 +14,7 @@ export const comparePassword = async (password: string, hashedPassword: string) 
 
 // const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: 'smtp.gmail.com',
   port: 587,
   auth: {
     user: process.env.EMAIL_USER,
