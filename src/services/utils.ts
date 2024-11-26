@@ -13,14 +13,6 @@ export const comparePassword = async (password: string, hashedPassword: string) 
 }
 
 // const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-const transporter = nodemailer.createTransport({
-  service: 'smtp.gmail.com',
-  port: 587,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
 
 // Generate a 6-digit OTP
 export const generateOtp = (): number => Math.floor(100000 + Math.random() * 900000);
@@ -36,12 +28,23 @@ export const generateOtp = (): number => Math.floor(100000 + Math.random() * 900
 
 // Send OTP via Email
 export const sendEmailOtp = async (email: string, otp: string | number) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAILPASS,
+    }
+  });
+
+  const mailOptions = {
+    from:  process.env.EMAIL,
     to: email,
     subject: 'Your OTP',
     text: `Your OTP is: ${otp}`,
-  });
+  };
+
+  await transporter.sendMail(mailOptions);
 };
 
 // Generate a password recovery token
