@@ -8,6 +8,7 @@ import {
   sendEmailOtp,
   comparePassword
 } from '../services/utils';
+import { JwtService } from '@nestjs/jwt'
 import { Prisma } from '@prisma/client';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -15,14 +16,34 @@ import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResponseDto } from './dto/response.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private jwt: JwtService,
+    private configService: ConfigService
+  ) { }
 
-  // Helper to generate JWT token
-  private generateToken(userId: number): string {
-    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  // Helper to generate SIGNED JWT token
+  async SignToken(userId: number): Promise<string> {
+    const payload = {
+      sub: userId,
+    }
+    try {
+      const token = await this.jwt.signAsync(
+        payload,
+        {
+          expiresIn: '365d',
+          secret: this.configService.get<string>('JWT_SECRET')
+        }
+      )
+      return token
+    } catch (err) {
+      console.log(err)
+    }
+
   }
 
   // Helper to send OTP
@@ -84,7 +105,8 @@ export class AuthService {
       });
 
       delete updatedUser.password
-      const token = this.generateToken(verifyOtpDto.userId);
+      // const token = this.generateToken(verifyOtpDto.userId);
+      const token = await this.SignToken(verifyOtpDto.userId)
       return this.createResponse('Email verified successfully', { token, user: updatedUser });
     } else if (verifyOtpDto.reason === 'resetPassword') {
       return this.createResponse('OTP verified');
@@ -125,7 +147,9 @@ export class AuthService {
       return this.createResponse('OTP sent successfully', { userId: user.id });
     }
 
-    const token = this.generateToken(user.id);
+    // const token = this.generateToken(user.id);
+    const token = await this.SignToken(user.id)
+
     delete user.password;
     return this.createResponse('Login successful', { token, user });
   }
