@@ -5,8 +5,11 @@ import { ResponseDto } from '../auth/dto/response.dto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma.service';
 import { ChangePasswordDto } from './dto/change-paswword.dto';
-import { first } from 'rxjs';
 import { comparePassword, hashPassword } from '../services/utils';
+
+interface CloudinaryUploadResult {
+  secure_url: string;
+}
 
 @Injectable()
 export class ProfileService {
@@ -30,10 +33,21 @@ export class ProfileService {
   // Upload image to Cloudinary
   async uploadImage(file: Express.Multer.File, userId: number): Promise<any> {
     try {
-      // Upload the file to Cloudinary
-      const result = await cloudinary.v2.uploader.upload(file.path, {
-        folder: `barbershop-vecelli/${userId}`, // Optional: Folder on Cloudinary
-        public_id: userId.toString(),  // Optional: Set custom public ID
+      const result = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
+        cloudinary.v2.uploader.upload_stream(
+          {
+            resource_type: 'auto', // Automatically detect the resource type (image, video, etc.)
+            folder: `barbershop-vecelli/${userId}`, // Cloudinary folder for this upload
+            public_id: userId.toString(), // Optional: Set custom public ID for the image
+          },
+          (error, result) => {
+            if (error) {
+              reject(error); // Reject the promise if there is an error
+            } else {
+              resolve(result); // Resolve with the upload result
+            }
+          }
+        ).end(file.buffer); // End the stream and pass the file buffer
       });
 
       if (result) {
