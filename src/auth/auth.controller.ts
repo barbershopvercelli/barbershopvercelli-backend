@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +41,12 @@ export class AuthController {
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Post('decode-token')
+  async socialLogin(
+    @Body() socialLoginDtoDto: SocialLoginDto,
+  ) {
+    return this.authService.socialLogin(socialLoginDtoDto);
   }
 }

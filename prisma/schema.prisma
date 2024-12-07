@@ -16,10 +16,10 @@ datasource db {
 model User {
   id         Int       @id @default(autoincrement())
   firstName  String
-  lastName   String
+  lastName   String?
   email      String?   @unique
   phone      String?   @unique
-  password   String
+  password   String?
   avatarUrl  String?
   role       Role      @default(USER)
   isVerified Boolean?  @default(false)
