@@ -5,8 +5,16 @@ export class SocialLoginDto {
     @IsString()
     token: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     platform: string;
+
+    @IsOptional()
+    @IsString()
+    firstName?: string;
+
+    @IsOptional()
+    @IsString()
+    lastName?: string;
 
 }

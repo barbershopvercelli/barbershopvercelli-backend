@@ -270,6 +270,37 @@ export class AuthService {
       const token = await this.SignToken(user.id)
       delete user.password;
       return this.createResponse('Login successful', { token, user });
+    } else if (socialLoginDto.platform === 'Apple') {
+      const decoded = jwt.decode(socialLoginDto.token, { complete: true }) as { [key: string]: any };
+
+      if (!decoded || !decoded.payload) {
+        throw new Error('Invalid token');
+      }
+
+      const { email } = decoded.payload;
+
+      let user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user) {
+        const firstName = socialLoginDto.firstName;
+        const lastName = socialLoginDto.lastName;
+        user = await this.prisma.user.create({
+          data: {
+            firstName,
+            lastName,
+            email,
+            isVerified: true
+          }
+        });
+      }
+
+      // const token = this.generateToken(user.id);
+      const token = await this.SignToken(user.id)
+
+      delete user.password;
+      return this.createResponse('Login successful', { token, user });
     }
   }
 }
