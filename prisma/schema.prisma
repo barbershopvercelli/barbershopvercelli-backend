@@ -38,6 +38,17 @@ model otp {
   updatedAt DateTime @updatedAt
 }
 
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       String
+  iconName    String
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum Role {
   ADMIN
   USER

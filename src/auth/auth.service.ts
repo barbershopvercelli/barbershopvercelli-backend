@@ -19,6 +19,7 @@ import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ConfigService } from '@nestjs/config';
 import { SocialLoginDto } from './dto/social-login.dto';
 import axios from 'axios';
+import * as cloudinary from 'cloudinary';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,13 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private jwt: JwtService,
     private configService: ConfigService
-  ) { }
+  ) {
+    cloudinary.v2.config({
+      cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
+      api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
+      api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
+    });
+  }
 
   // Helper to generate SIGNED JWT token
   async SignToken(userId: number): Promise<string> {
@@ -302,5 +309,61 @@ export class AuthService {
       delete user.password;
       return this.createResponse('Login successful', { token, user });
     }
+  }
+
+  // Delete Account Logic
+  async deleteAccount(userId: number): Promise<ResponseDto> {
+    // Step 1: Fetch the user record to ensure they exist
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return this.createResponse('User not found');
+    }
+
+    // Check if the avatar URL starts with the specific Cloudinary URL prefix
+    const cloudinaryUrlPrefix = 'https://res.cloudinary.com/dpnjvmgjk/image/upload';
+    if (user?.avatarUrl && user?.avatarUrl?.startsWith(cloudinaryUrlPrefix)) {
+
+      // Step 2: Define the folder path
+      const folderPath = `barbershop-vecelli/${user?.id}`;
+
+      // Step 3: Delete all resources in the folder
+      await new Promise((resolve, reject) => {
+        cloudinary.v2.api.delete_resources_by_prefix(
+          folderPath,
+          (error, result) => {
+            if (error) {
+              console.error('Error deleting resources from Cloudinary:', error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      });
+
+      // Step 4: Delete the folder itself
+      await new Promise((resolve, reject) => {
+        cloudinary.v2.api.delete_folder(
+          folderPath,
+          (error, result) => {
+            if (error) {
+              console.error('Error deleting folder from Cloudinary:', error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+      });
+    }
+
+    // Step 5: Delete the user from the database
+    const deletedUser = await this.prisma.user.delete({
+      where: { id: userId },
+    });
+    return this.createResponse('Account deleted successfully', deletedUser);
   }
 }

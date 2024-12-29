@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Delete, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -48,5 +48,10 @@ export class AuthController {
     @Body() socialLoginDtoDto: SocialLoginDto,
   ) {
     return this.authService.socialLogin(socialLoginDtoDto);
+  }
+
+  @Delete('delete/:userId')
+  async deleteUser(@Param('userId') userId: string) {
+    return await this.authService.deleteAccount(+userId)
   }
 }

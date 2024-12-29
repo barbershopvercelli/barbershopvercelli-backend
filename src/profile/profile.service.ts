@@ -22,7 +22,6 @@ export class ProfileService {
       api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
       api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
     });
-
   }
 
   // Standard response structure for success
