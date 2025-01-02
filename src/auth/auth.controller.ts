@@ -51,7 +51,7 @@ export class AuthController {
   }
 
   @Delete('delete/:userId')
-  async deleteUser(@Param('userId') userId: string) {
+  async deleteUser(@Param('userId') userId: string): Promise<{ message: string }> {
     return await this.authService.deleteAccount(+userId)
   }
 }
