@@ -20,4 +20,8 @@ export class LoginDto {
         message: 'Password must be at least 8 characters long and contain at least one digit, one special character, one lowercase letter, and one Uppercase letter.'
     })
     password: string;
+
+    @IsNotEmpty()
+    @IsString()
+    deviceId: string;
 }

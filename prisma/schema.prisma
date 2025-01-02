@@ -45,7 +45,7 @@ model User {
   phone        String?       @unique
   password     String?
   avatarUrl    String?
-  deviceId     String?
+  deviceIds    String[] // Changed from String to String[]
   role         Role          @default(USER)
   isVerified   Boolean?      @default(false)
   otp          otp?

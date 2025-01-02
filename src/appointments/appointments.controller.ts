@@ -8,7 +8,7 @@ import { GetUser } from '../auth/decorator';
 @UseGuards(JwtGuard)
 @Controller('appointments')
 export class AppointmentsController {
-  constructor(private readonly appointmentsService: AppointmentsService) {}
+  constructor(private readonly appointmentsService: AppointmentsService) { }
 
   @Post()
   create(@GetUser('id') userId: string, @Body() createAppointmentDto: CreateAppointmentDto) {
@@ -20,9 +20,19 @@ export class AppointmentsController {
     return this.appointmentsService.findAll();
   }
 
+  @Get('available-slots')
+  availableSlotsSlots() {
+    return this.appointmentsService.getFutureAppointmentSlots();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.appointmentsService.findOne(+id);
+  }
+
+  @Get('user/:userId')
+  findUserAppointments(@Param('userId') id: string) {
+    return this.appointmentsService.findUserAppointments(+id);
   }
 
   @Patch(':id')
@@ -34,4 +44,6 @@ export class AppointmentsController {
   remove(@Param('id') id: string) {
     return this.appointmentsService.remove(+id);
   }
+
+
 }

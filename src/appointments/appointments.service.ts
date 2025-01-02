@@ -63,6 +63,17 @@ export class AppointmentsService {
     }
   }
 
+  async findUserAppointments(userId: number) {
+    try {
+      const appointments = await this.prisma.appointment.findMany({
+        where: { userId },
+        include: { branch: true },
+      });
+      return this.createResponse('User appointments retrieved successfully', appointments);
+    } catch (error) {
+      throw new Error('Error retrieving user appointments: ' + error.message);
+    }
+  }
   async update(id: number, updateAppointmentDto: UpdateAppointmentDto) {
     try {
       const existingAppointment = await this.prisma.appointment.findUnique({ where: { id } });
@@ -97,4 +108,29 @@ export class AppointmentsService {
       throw new Error('Error deleting appointment: ' + error.message);
     }
   }
+
+  async getFutureAppointmentSlots() {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set time to the start of the day
+
+      const futureAppointments = await this.prisma.appointment.findMany({
+        where: {
+          AND: [
+            { date: { gte: today } }, // Filter for appointments from today onwards
+          ],
+        },
+        select: {
+          date: true, // Only select the slotTime field
+        },
+      });
+
+      const slots = futureAppointments.map(appointment => appointment.date);
+
+      return this.createResponse('Future appointment slots retrieved successfully', slots);
+    } catch (error) {
+      throw new Error('Error retrieving future appointment slots: ' + error.message);
+    }
+  }
+
 }

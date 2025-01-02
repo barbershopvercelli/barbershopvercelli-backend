@@ -16,4 +16,8 @@ export class VerifyOtpDto {
         message: 'Reason must be either "emailVerification" or "resetPassword"',
     })
     reason: string;
+
+    @IsNotEmpty()
+    @IsString()
+    deviceId: string;
 }

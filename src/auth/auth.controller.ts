@@ -6,6 +6,7 @@ import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { GetUser } from './decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -53,5 +54,10 @@ export class AuthController {
   @Delete('delete/:userId')
   async deleteUser(@Param('userId') userId: string): Promise<{ message: string }> {
     return await this.authService.deleteAccount(+userId)
+  }
+
+  @Post('logout/:userId')
+  async logout(@Param('userId') userId: string, @Body('deviceId') deviceId: string): Promise<{ message: string }> {
+    return await this.authService.logout(+userId, deviceId)
   }
 }

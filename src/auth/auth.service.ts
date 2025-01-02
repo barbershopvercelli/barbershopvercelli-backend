@@ -114,6 +114,17 @@ export class AuthService {
       });
 
       delete updatedUser.password
+
+      // Append deviceId to deviceIds array
+      const updatedDeviceIds = updatedUser?.deviceIds || []; // Initialize if null
+      if (!updatedDeviceIds.includes(verifyOtpDto.deviceId)) {
+        updatedDeviceIds.push(verifyOtpDto.deviceId);
+        await this.prisma.user.update({
+          where: { id: updatedUser.id },
+          data: { deviceIds: updatedDeviceIds },
+        });
+      }
+
       // const token = this.generateToken(verifyOtpDto.userId);
       const token = await this.SignToken(verifyOtpDto.userId)
       return this.createResponse('Email verified successfully', { token, user: updatedUser });
@@ -158,6 +169,16 @@ export class AuthService {
     if (!user.isVerified) {
       await this.sendOtp(user.id, credentials.email, credentials.phone);
       return this.createResponse('OTP sent successfully', { userId: user.id });
+    }
+
+    // Append deviceId to deviceIds array
+    const updatedDeviceIds = user?.deviceIds || []; // Initialize if null
+    if (!updatedDeviceIds.includes(credentials.deviceId)) {
+      updatedDeviceIds.push(credentials.deviceId);
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { deviceIds: updatedDeviceIds },
+      });
     }
 
     // const token = this.generateToken(user.id);
@@ -226,8 +247,19 @@ export class AuthService {
             lastName,
             email,
             avatarUrl: picture,
-            isVerified: true
+            isVerified: true,
+            deviceIds: [socialLoginDto.deviceId]
           }
+        });
+      }
+
+      // Append deviceId to deviceIds array
+      const updatedDeviceIds = user?.deviceIds || []; // Initialize if null
+      if (!updatedDeviceIds.includes(socialLoginDto.deviceId)) {
+        updatedDeviceIds.push(socialLoginDto.deviceId);
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { deviceIds: updatedDeviceIds },
         });
       }
 
@@ -268,8 +300,19 @@ export class AuthService {
             lastName,
             email: userInfo.email,
             avatarUrl: userInfo?.picture?.data?.url,
-            isVerified: true
+            isVerified: true,
+            deviceIds: [socialLoginDto.deviceId]
           }
+        });
+      }
+
+      // Append deviceId to deviceIds array
+      const updatedDeviceIds = user?.deviceIds || []; // Initialize if null
+      if (!updatedDeviceIds.includes(socialLoginDto.deviceId)) {
+        updatedDeviceIds.push(socialLoginDto.deviceId);
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { deviceIds: updatedDeviceIds },
         });
       }
 
@@ -298,8 +341,19 @@ export class AuthService {
             firstName,
             lastName,
             email,
-            isVerified: true
+            isVerified: true,
+            deviceIds: [socialLoginDto.deviceId]
           }
+        });
+      }
+
+      // Append deviceId to deviceIds array
+      const updatedDeviceIds = user?.deviceIds || []; // Initialize if null
+      if (!updatedDeviceIds.includes(socialLoginDto.deviceId)) {
+        updatedDeviceIds.push(socialLoginDto.deviceId);
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { deviceIds: updatedDeviceIds },
         });
       }
 
@@ -365,5 +419,26 @@ export class AuthService {
       where: { id: userId },
     });
     return this.createResponse('Account deleted successfully', deletedUser);
+  }
+
+  // Delete Account Logic
+  async logout(userId: number, deviceId: string): Promise<ResponseDto> {
+    // Step 1: Fetch the user record to ensure they exist
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return this.createResponse('User not found');
+    }
+
+    const updatedDeviceIds = (user.deviceIds || []).filter(id => id !== deviceId);
+    const updated = await this.prisma.user.update({
+      where: { id: user.id },
+      data: { deviceIds: updatedDeviceIds },
+    });
+
+    console.log('Logout ', updated)
+    return this.createResponse('Logout successfully');
   }
 }

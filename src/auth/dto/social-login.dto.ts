@@ -17,4 +17,7 @@ export class SocialLoginDto {
     @IsString()
     lastName?: string;
 
+    @IsNotEmpty()
+    @IsString()
+    deviceId: string;
 }
