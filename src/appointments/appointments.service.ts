@@ -109,13 +109,14 @@ export class AppointmentsService {
     }
   }
 
-  async getFutureAppointmentSlots() {
+  async getFutureAppointmentSlots(branchId: number) {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Set time to the start of the day
 
       const futureAppointments = await this.prisma.appointment.findMany({
         where: {
+          branchId,
           AND: [
             { date: { gte: today } }, // Filter for appointments from today onwards
           ],

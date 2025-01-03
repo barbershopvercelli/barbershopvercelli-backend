@@ -20,9 +20,9 @@ export class AppointmentsController {
     return this.appointmentsService.findAll();
   }
 
-  @Get('available-slots')
-  availableSlotsSlots() {
-    return this.appointmentsService.getFutureAppointmentSlots();
+  @Get('booked-slots/:branchId')
+  availableSlotsSlots(@Param('branchId') id: string) {
+    return this.appointmentsService.getFutureAppointmentSlots(+id);
   }
 
   @Get(':id')
@@ -44,6 +44,4 @@ export class AppointmentsController {
   remove(@Param('id') id: string) {
     return this.appointmentsService.remove(+id);
   }
-
-
 }
